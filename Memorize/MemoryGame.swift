@@ -12,12 +12,19 @@ struct MemoryGame<T> where T: Equatable {
 	// View Model has only read permissions on the 'cards' objects
 	private(set) var cards: Array<Card>
 	
-	var indexOfTheOneAndOnlyFaceUpCard: Int?
+	private var indexOfTheOneAndOnlyFaceUpCard: Int? {
+		get {
+			cards.indices.filter({cards[$0].isFaceUp}).oneAndOnly
+		}
+		set {
+			cards.indices.forEach { cards[$0].isFaceUp = (newValue == $0) }
+		}
+	}
 	
 	init(numberOfPairsOfCards: Int, createCardContent: (Int) -> T) {
-		cards = Array<Card>()
+		cards = []
 		for i in 0..<numberOfPairsOfCards {
-			let content: T = createCardContent(i)
+			let content = createCardContent(i)
 			cards.append(Card(content: content, id: i*2))
 			cards.append(Card(content: content, id: i*2+1))
 		}
@@ -29,45 +36,39 @@ struct MemoryGame<T> where T: Equatable {
 		   !cards[cardIndex].isFaceUp,
 		   !cards[cardIndex].isMatched {
 			if let potentialMatchIndex = indexOfTheOneAndOnlyFaceUpCard {
-				potentialMatch(cardIndex: cardIndex, potentialMatchIndex: potentialMatchIndex)
-			} else {
-				for i in cards.indices {
-					cards[i].isFaceUp = false
+				if cards[cardIndex].content == cards[potentialMatchIndex].content {
+					// Correct guess
+					cards[cardIndex].isMatched = true
+					cards[potentialMatchIndex].isMatched = true
 				}
+				cards[cardIndex].isFaceUp = true
+			} else {
 				indexOfTheOneAndOnlyFaceUpCard = cardIndex
 			}
-			cards[cardIndex].isFaceUp.toggle()
 		}
-	}
-	
-	mutating func potentialMatch(cardIndex: Int, potentialMatchIndex: Int) {
-		if cards[cardIndex].content == cards[potentialMatchIndex].content &&
-			cards[cardIndex] != cards[potentialMatchIndex]{
-			// Correct guess
-			cards[cardIndex].isMatched = true
-			cards[potentialMatchIndex].isMatched = true
-		} else {
-			// Wrong guess
-			for i in cards.indices {
-				cards[i].isFaceUp = false
-			}
-			cards[cardIndex].isMatched = false
-			cards[potentialMatchIndex].isMatched = false
-		}
-		indexOfTheOneAndOnlyFaceUpCard = nil
 	}
 	
 	struct Card: Identifiable, Equatable  {
-		var isFaceUp: Bool = false;
-		var isMatched: Bool = false;
-		var content: T;
-		var id: Int
+		var isFaceUp = false;
+		var isMatched = false;
+		let content: T;
+		let id: Int
 		
 		static func == (lhs: MemoryGame<T>.Card, rhs: MemoryGame<T>.Card) -> Bool {
 			lhs.id == rhs.id &&
 			lhs.isFaceUp == rhs.isFaceUp &&
 			lhs.content == rhs.content &&
 			lhs.isMatched == rhs.isMatched
+		}
+	}
+}
+
+extension Array {
+	var oneAndOnly: Element? {
+		if self.count == 1 {
+			return self.first
+		} else {
+			return nil
 		}
 	}
 }

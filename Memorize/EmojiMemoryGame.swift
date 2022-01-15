@@ -9,8 +9,10 @@ import SwiftUI
 
 // This is the View Model
 class EmojiMemoryGame: ObservableObject {
-	static let emojis = ["🎉", "🤔", "🛢", "🥳", "🏎", "👀", "e", "a", "u", "o", "i", "d", "s"]
-	static let createEmojiMemoryGame = {
+	typealias Card = MemoryGame<String>.Card
+	
+	private static let emojis = ["🎉", "🤔", "🛢", "🥳", "🏎", "👀", "e", "a", "u", "o", "i", "d", "s"]
+	private static let createEmojiMemoryGame = {
 		MemoryGame<String>(
 			numberOfPairsOfCards: 4,
 			createCardContent: {(index: Int) -> String in
@@ -20,15 +22,15 @@ class EmojiMemoryGame: ObservableObject {
 	
 	// To make the model reactive, the View Model must implement ObservableObject and the model var
 	// must be annotated with @Published
-	@Published private var model: MemoryGame<String> = createEmojiMemoryGame()
+	@Published private var model = createEmojiMemoryGame()
 	
-	var cards: Array<MemoryGame<String>.Card> {
+	var cards: Array<Card> {
 		return model.cards
 	}
 	
 	// MARK: - Intent(s)
 	
-	func choose(_ card: MemoryGame<String>.Card) {
+	func choose(_ card: Card) {
 		objectWillChange.send()
 		model.choose(card)
 	}
