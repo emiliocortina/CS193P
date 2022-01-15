@@ -11,20 +11,14 @@ struct EmojiMemoryGameView: View {
 	@ObservedObject var game: EmojiMemoryGame
 	
 	var body: some View {
-		ScrollView {
-			// This argument passed to ScrollView is a ViewBuilder
-			// It is basically a list of views aka TupleView
-			LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
-				ForEach(game.cards) {card in
-					CardView(card)
-						.onTapGesture {
-							game.choose(card)
-						}
+		AspectVGrid(items: game.cards, aspectRatio: 2/3) { card in
+			CardView(card)
+				.onTapGesture {
+					game.choose(card)
 				}
-			}
-			.padding(.horizontal)
-			.foregroundColor(.red)
 		}
+		.padding(.horizontal)
+		.foregroundColor(.red)
 	}
 }
 
@@ -46,13 +40,16 @@ struct CardView: View {
 						shape.fill().foregroundColor(.white)
 						shape.strokeBorder(lineWidth: DrawingContents.lineWidth)
 						Text(card.content).font(font(in: geometry.size))
+						Pie(startAngle: Angle(degrees: 270), endAngle: Angle(degrees: 60))
+							.padding(5)
+							.opacity(0.7)
 					} else {
 						shape.fill()
 					}
 				}
 			}
 		}
-		.aspectRatio(2/3, contentMode: ContentMode.fit)
+		.padding(4)
 	}
 	
 	private func font (in size: CGSize) -> Font {
@@ -63,7 +60,7 @@ struct CardView: View {
 	private struct DrawingContents {
 		static let cornerRadius: CGFloat = 25
 		static let lineWidth: CGFloat = 4
-		static let fontScaling: CGFloat = 0.8
+		static let fontScaling: CGFloat = 0.7
 	}
 }
 

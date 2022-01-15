@@ -54,12 +54,13 @@ struct MemoryGame<T> where T: Equatable {
 		let content: T;
 		let id: Int
 		
-		static func == (lhs: MemoryGame<T>.Card, rhs: MemoryGame<T>.Card) -> Bool {
-			lhs.id == rhs.id &&
-			lhs.isFaceUp == rhs.isFaceUp &&
-			lhs.content == rhs.content &&
-			lhs.isMatched == rhs.isMatched
-		}
+		// This i not needed because all of the structs variables are equatable so it is done automatically
+//		static func == (lhs: MemoryGame<T>.Card, rhs: MemoryGame<T>.Card) -> Bool {
+//			lhs.id == rhs.id &&
+//			lhs.isFaceUp == rhs.isFaceUp &&
+//			lhs.content == rhs.content &&
+//			lhs.isMatched == rhs.isMatched
+//		}
 	}
 }
 
