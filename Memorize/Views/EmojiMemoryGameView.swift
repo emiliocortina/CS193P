@@ -33,34 +33,39 @@ struct CardView: View {
 		// GeometryReader always accepts all the space offered to it
 		GeometryReader { geometry in
 			ZStack {
-				let shape = RoundedRectangle(cornerRadius: DrawingContents.cornerRadius)
-				if !card.isMatched {
-					if card.isFaceUp {
-						// This returns a TupleView
-						shape.fill().foregroundColor(.white)
-						shape.strokeBorder(lineWidth: DrawingContents.lineWidth)
-						Text(card.content).font(font(in: geometry.size))
-						Pie(startAngle: Angle(degrees: 270), endAngle: Angle(degrees: 60))
-							.padding(5)
-							.opacity(0.7)
-					} else {
-						shape.fill()
-					}
-				}
+				// Animations can only happen in two ways, Shapes or ViewModifiers
+				Pie(startAngle: Angle(degrees: 270), endAngle: Angle(degrees: 60))
+					.padding(5)
+					.opacity(0.7)
+				Text(card.content)
+					// The only time the ViewModifiers can be animated is when they change, so if the arguments passed to a ViewModifier don't change the animation can't happen.
+					// This implicit animation will fire whenever the card.isMatched value changes
+					.rotationEffect(Angle.degrees(card.isMatched ? 360 : 0))
+					.animation(Animation.linear(duration: 2).repeatForever(autoreverses: false))
+//					.font(font(in: geometry.size))
+					// This scaleEffect displays the emoji in low resolution.
+					.scaleEffect(scale(thatFits: geometry.size))
 			}
+			.cardify(isFaceUp: card.isFaceUp)
 		}
 		.padding(4)
+		
 	}
 	
-	private func font (in size: CGSize) -> Font {
-		Font.system(size: min(size.width, size.height) * DrawingContents.fontScaling)
+	private func scale(thatFits size: CGSize) -> CGFloat {
+		min(size.width, size.height) / DrawingConstants.fontSize / DrawingConstants.fontScaling
 	}
+	
+	
+	// This causes weird glitches with animations when the display is rotated deprecated in favor of .scaleEffect(scale(thatFits: geometry.size))
+		private func font (in size: CGSize) -> Font {
+			Font.system(size: min(size.width, size.height) * DrawingConstants.fontScaling)
+		}
 	
 	// Creating constants
-	private struct DrawingContents {
-		static let cornerRadius: CGFloat = 25
-		static let lineWidth: CGFloat = 4
+	private struct DrawingConstants {
 		static let fontScaling: CGFloat = 0.7
+		static let fontSize: CGFloat = 32
 	}
 }
 
